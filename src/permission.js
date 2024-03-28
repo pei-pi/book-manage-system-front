@@ -1,39 +1,39 @@
-import router from './router'
-import store from './store'
-import { Message } from 'element-ui'
-import { getToken } from '@/assets/utils/auth' 
-const whiteList = ['/login'] 
+import router from "./router";
+import store from "./store";
+import { Message } from "element-ui";
+import { getToken } from "@/assets/utils/auth";
+const whiteList = ["/login", "/register"];
 
-router.beforeEach(async(to, from, next) => {
-  const hasToken = getToken()
+router.beforeEach(async (to, from, next) => {
+  const hasToken = getToken();
 
   if (hasToken) {
-    if (to.path === '/login') {
-      next({ path: '/' })
+    if (to.path === "/login" || to.path === "/register") {
+      next({ path: "/" });
     } else {
-      const hasGetUserInfo = store.getters.name
+      const hasGetUserInfo = store.getters.name;
       if (hasGetUserInfo) {
-        next()
+        next();
       } else {
         try {
-          await store.dispatch('user/getInfo')
-          next()
+          await store.dispatch("user/getInfo");
+          next();
         } catch (error) {
-          await store.dispatch('user/resetToken')
-          Message.error(error || 'Has Error')
-          next(`/login?redirect=${to.path}`)
+          await store.dispatch("user/resetToken");
+          Message.error(error || "Has Error");
+          next(`/login?redirect=${to.path}`);
         }
       }
     }
   } else {
     if (whiteList.indexOf(to.path) !== -1) {
-      next()
+      next();
     } else {
-      next(`/login?redirect=${to.path}`)
+      next(`/login?redirect=${to.path}`);
     }
   }
-})
+});
 
 router.afterEach(() => {
   // finish progress bar
-})
+});

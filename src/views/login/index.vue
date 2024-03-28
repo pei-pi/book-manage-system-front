@@ -64,7 +64,7 @@ export default {
           duration: 4 * 1000,
         });
       }
-      if (!/^[a-zA-Z\d_.-@#]{6,16}$/.test(this.form.password)) {
+      if (!/^[A-Za-z0-9_@#$&]{6,16}$/.test(this.form.password)) {
         await Message({
           message: "请输入6-16位密码",
           type: "error",
