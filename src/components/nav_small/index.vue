@@ -7,7 +7,7 @@
                 <p>|</p>
                 <p>个人中心</p>
                 <p>|</p>
-                <p>退出登录</p>
+                <p class="logout" @click="logout">退出登录</p>
             </div>
         </div>
         <div class="searchBar">
@@ -21,13 +21,21 @@
 </template>
 
 <script>
+import store from '@/store'
 export default {
     name: 'nav',
     data() {
         return {
-            user: 'peipi'
+            user: store.getters.name,
         }
-    }
+    },
+    methods: {
+    logout() {
+      this.$store.dispatch("user/logout").then(() => {
+        this.$router.push({ path: "login" });
+      });
+    },
+  },
 }
 </script>
 
@@ -102,5 +110,9 @@ export default {
 .el-icon-search {
     font-size: 24px;
     color: white;
+}
+.logout:hover{
+    cursor: pointer;
+    color: black;
 }
 </style>
