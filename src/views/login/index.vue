@@ -72,33 +72,34 @@ export default {
         });
       }
       console.log(this.user);
-      for (let i = 0; i < this.user.length; i++) {
-        if (this.user[i].username === this.form.username) {
-          if (this.user[i].userPassword === this.form.password) {
-            this.$store
-              .dispatch("user/login", this.form)
-              .then(() => {
-                this.$router.push({ path: this.redirect || "/" });
-              })
-              .catch((err) => {
-                console.error(err)
+      const userList = this.user.map((item) => item.username);
+      console.log(userList);
+      if (userList.indexOf(this.form.username) === -1) {
+        Message({
+          message: "用户名不存在",
+          type: "error",
+          duration: 4 * 1000,
+        });
+      } else {
+        for (let i = 0; i < this.user.length; i++) {
+          if (this.user[i].username === this.form.username) {
+            if (this.user[i].userPassword === this.form.password) {
+              this.$store
+                .dispatch("user/login", this.form)
+                .then(() => {
+                  this.$router.push({ path: this.redirect || "/" });
+                })
+                .catch((err) => {
+                  console.error(err);
+                });
+            } else {
+              Message({
+                message: "密码错误",
+                type: "error",
+                duration: 4 * 1000,
               });
-            break;
-          } else {
-            await Message({
-              message: "密码错误",
-              type: "error",
-              duration: 4 * 1000,
-            });
-            break;
+            }
           }
-        } else {
-          await Message({
-            message: "用户名不存在",
-            type: "error",
-            duration: 4 * 1000,
-          });
-          break;
         }
       }
     },
