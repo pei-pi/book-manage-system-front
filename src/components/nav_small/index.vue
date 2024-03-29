@@ -5,6 +5,8 @@
             <div class="nav_right">
                 <p>欢迎光临 , {{ this.user }}</p>
                 <p>|</p>
+                <router-link id="home" to="/home">首页</router-link>
+                <p>|</p>
                 <p>个人中心</p>
                 <p>|</p>
                 <p class="logout" @click="logout">退出登录</p>
@@ -67,6 +69,14 @@ export default {
     padding-left: 10px;
     padding-right: 10px;
     color: gray;
+}
+#home{
+    font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+    font-size: 14px;
+    padding-left: 10px;
+    padding-right: 10px;
+    color: gray;
+    text-decoration: none;
 }
 
 .searchBar {

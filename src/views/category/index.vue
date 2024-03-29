@@ -19,6 +19,14 @@ export default {
         Menu,
         Container,
         Nav_small,
+    },
+    data(){
+        return{
+            category:null,
+        }
+    },
+    methods:{
+        
     }
 }
 </script>

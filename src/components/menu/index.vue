@@ -5,12 +5,14 @@
     </div>
     <div class="menu">
       <div class="onemenu" v-for="(menu, index) in menus" :key="index">
-        <span class="opener" @click="toggle(index)">{{ menu.category }}</span>
+        <span class="opener" @click="toggle(index)" :class="{ 'highlight': activeMenuIndex === index }">{{ menu.category }}</span>
         <ul class="submenu" :class="'submenu' + index" style="display: none">
           <li
             class="subtitle"
             v-for="(category, index) in menu.sub_category"
             :key="index"
+            @click="choose(category,index)"
+            :class="{ 'active': activeCategoryIndex === index }"
           >
             {{ category }}
           </li>
@@ -23,6 +25,7 @@
 
 <script>
 import request from "@/assets/utils/request";
+import Bus from '@/assets/js/bus'
 export default {
   name: "Menu",
   mounted() {
@@ -32,10 +35,13 @@ export default {
   data() {
     return {
       menus: [],
+      activeMenuIndex: -1,
+      activeCategoryIndex: -1
     };
   },
   methods: {
     toggle(index) {
+      this.activeMenuIndex = index;
       let tag = document.getElementsByClassName("submenu" + index)[0];
       let displayValue = window
         .getComputedStyle(tag)
@@ -88,6 +94,10 @@ export default {
           });
       });
     },
+    choose(category,index){
+      this.activeCategoryIndex = index;
+      Bus.$emit('category', category)
+    }
   },
 };
 </script>
@@ -173,5 +183,12 @@ ul li {
 
 .blank {
   height: 100px;
+}
+.opener.highlight {
+  color: red; /* 设置高亮颜色 */
+}
+
+.subtitle.active {
+  color: red; /* 设置高亮颜色 */
 }
 </style>
