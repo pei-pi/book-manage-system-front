@@ -1,6 +1,6 @@
 <template>
     <div>
-        <div class="nav">
+        <div class="myNav">
             <p class="welcome">Welcome to BookWander</p>
             <div class="nav_right">
                 <p>欢迎光临 , {{ this.user }}</p>
@@ -23,7 +23,7 @@
 <script>
 import store from '@/store'
 export default {
-    name: 'nav',
+    name: 'myNav',
     data() {
         return {
             user: store.getters.name,
@@ -40,7 +40,7 @@ export default {
 </script>
 
 <style scoped>
-.nav {
+.myNav {
     background-color: #eef5ff;
     height: 40px;
 }

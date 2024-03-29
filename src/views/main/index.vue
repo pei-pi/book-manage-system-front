@@ -1,6 +1,6 @@
 <template>
     <div class="main_container">
-        <Nav_main></Nav_main>
+        <NavMain></NavMain>
         <Lunbo style="margin-top: 30px;"></Lunbo>
         <Category style="margin-top: 60px;"></Category>
         <Hot style="margin-top: 30px;"></Hot>
@@ -12,7 +12,7 @@
 </template>
 
 <script>
-import Nav_main from "@/components/nav_main"
+import NavMain from "@/components/navMain"
 import Lunbo from "@/components/lunbo"
 import Category from "@/components/category"
 import New from "@/components/new"
@@ -23,7 +23,7 @@ export default {
 
     name: '',
     components: {
-        Nav_main,
+        NavMain,
         Lunbo,
         Category,
         Hot,
