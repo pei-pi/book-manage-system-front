@@ -1,7 +1,7 @@
 <template>
   <div class="container">
     <div class="all_book">
-      <div v-for="book in books" :key="book.bookId" class="book">
+      <router-link v-for="book in books" :key="book.bookId" :to="'/detail/'+book.bookId" class="book">
         <img :src="book.imgUrl" class="book_img" />
         <div class="book_intro">
           <h4
@@ -24,7 +24,7 @@
             {{ book.author }}
           </p>
         </div>
-      </div>
+      </router-link>
     </div>
   </div>
 </template>
@@ -146,5 +146,9 @@ h4 {
 }
 .book:hover .book_img {
   transform: scale(1.05);
+}
+a{
+  text-decoration: none;
+  color: black;
 }
 </style>

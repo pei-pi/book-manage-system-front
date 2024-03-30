@@ -7,7 +7,7 @@
         <p>|</p>
         <router-link id="home" to="/home">首页</router-link>
         <p>|</p>
-        <p>个人中心</p>
+        <p class="person">个人中心</p>
         <p>|</p>
         <p class="logout" @click="logout">退出登录</p>
       </div>
@@ -75,7 +75,7 @@ export default {
   flex-direction: row;
 }
 
-.nav_right p{
+.nav_right p,#home{
   font-family: "Lucida Sans", "Lucida Sans Regular", "Lucida Grande",
     "Lucida Sans Unicode", Geneva, Verdana, sans-serif;
   font-size: 14px;
@@ -84,14 +84,15 @@ export default {
   color: gray;
 }
 #home{
-    font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
-    font-size: 14px;
-    padding-left: 10px;
-    padding-right: 10px;
-    color: gray;
     text-decoration: none;
 }
-
+#home:hover{
+    color: black;
+}
+.person:hover{
+  color: black;
+  cursor: pointer;
+}
 .searchBar {
   width: 100%;
   height: 160px;

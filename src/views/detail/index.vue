@@ -5,21 +5,13 @@
     <div class="below">
       <div class="book">
         <div class="imgBox">
-          <img
-            :src="require(`@/assets/images/${book.imgUrl}`)"
-            class="book_img"
-          />
+          <img :src="book.imgUrl" class="book_img" />
         </div>
         <div class="right">
           <div class="title">
             <h2>{{ book.bookName }}</h2>
             <div class="tags">
-              <el-tag
-                v-for="(tag, index) in book.tags"
-                :key="index"
-                class="tag"
-                >{{ tag }}</el-tag
-              >
+              <el-tag class="tag">{{ book.tags }}</el-tag>
             </div>
           </div>
 
@@ -27,21 +19,42 @@
             作者：<span>{{ book.author }}</span>
           </p>
           <div class="content">{{ book.content }}</div>
-          <button class="collect">
-            <i class="iconfont icon-shoucang" style="margin-right: 5px"></i>收藏
+          <button class="collect" @click="collect()">
+            <div v-if="flag === 0">
+              <i
+                class="iconfont icon-shoucang"
+                style="margin-right: 5px; color: yellow"
+              ></i
+              >收藏
+            </div>
+            <div v-else-if="flag === 1">
+              <i
+                class="iconfont icon-shoucangxuanzhong"
+                style="margin-right: 5px; color: yellow"
+              ></i
+              >取消收藏
+            </div>
           </button>
-          <div style="display: inline-block;">
+          <div style="display: inline-block">
             <button class="borrow">借阅</button>
             <el-date-picker
-            class="timePicker"
+              class="timePicker"
               v-model="value1"
               type="daterange"
               range-separator="至"
               start-placeholder="开始日期"
               end-placeholder="结束日期"
+              value-format="yyyy-MM-dd HH:mm:ss"
+              format="yyyy-MM-dd hh:mm:ss"
             >
             </el-date-picker>
-            <el-button type="primary" style="margin-left: 10px;" icon="el-icon-check" circle></el-button>
+            <el-button
+              type="primary"
+              style="margin-left: 10px"
+              icon="el-icon-check"
+              circle
+              @click="borrow"
+            ></el-button>
           </div>
         </div>
       </div>
@@ -71,27 +84,27 @@
 
 <script>
 import Nav from "@/components/nav_small";
+import { Message } from "element-ui";
 import Footer from "@/components/footer";
+import request from "@/assets/utils/request";
 export default {
   name: "",
   components: {
     Nav,
     Footer,
   },
+  created() {
+    this.bookId = this.$route.params.id;
+    this.username = this.$store.getters.name;
+    this.loadBook();
+  },
+  mounted() {
+    this.isCollection();
+  },
   data() {
     return {
       value1: "",
-      value2: "",
-      book: {
-        bookId: 1,
-        imgUrl: "8796093023840933102.jpg",
-        bookName: "孤独是一座岛",
-        author: "安逸",
-        tags: ["悬疑", "科幻"],
-        content:
-          "小说通过被迫害者“狂人”的形象以及“狂人”的自述式的描写，揭示了封建礼教的“吃人”本质，表现了作者对以封建礼教为主体内涵的中国封建文化的反抗；也表现了作者深刻的忏悔意识。作者以彻底的“革命民主主义”的立场对中国的文化进行了深刻的反思，同时对中国的甚至是人类的前途表达了深广的忧愤。",
-        borrow: 12,
-      },
+      book: {},
       recommendbooks: [
         {
           bookId: 1,
@@ -142,7 +155,98 @@ export default {
           author: "安逸",
         },
       ],
+      bookId: 1,
+      username: "",
+      baseURL: process.env.VUE_APP_BASE_API,
+      flag: 0,
     };
+  },
+  methods: {
+    loadBook() {
+      console.log(this.bookId);
+      return new Promise((resolve, reject) => {
+        request({
+          url: `/book/getBookById?bookId=${this.bookId}`,
+          method: "get",
+        })
+          .then((res) => {
+            console.log(res);
+            const resBook = res.data.book;
+            this.book = {
+              bookId: resBook.id,
+              imgUrl: this.baseURL + "/" + resBook.bookSrc,
+              bookName: resBook.bookTitle,
+              author: resBook.bookAuthor,
+              tags: resBook.bookTags,
+              content: resBook.bookContent,
+            };
+          })
+          .catch((err) => {
+            reject(err);
+          });
+      });
+    },
+    borrow() {
+      console.log(this.value1);
+      console.log(new Date(this.value1[0]));
+    },
+    collect() {
+      if (this.flag === 0) {
+        return new Promise((resolve, reject) => {
+          request({
+            url: `/collection/insertCollection?bookId=${this.bookId}&username=${this.username}`,
+            method: "get",
+          })
+            .then((res) => {
+              console.log(res);
+              Message.success("收藏成功");
+              this.flag = 1;
+              resolve(res);
+            })
+            .catch((err) => {
+              reject(err);
+            });
+        });
+      } else {
+        this.$confirm("确认取消收藏此书籍?", {
+          confirmButtonText: "确定",
+          cancelButtonText: "取消",
+          type: "warning",
+        })
+          .then(() => {
+            return new Promise((resolve, reject) => {
+              request({
+                url: `/collection/cancleCollection?bookId=${this.bookId}&username=${this.username}`,
+                method: "delete",
+              })
+                .then((res) => {
+                  this.flag = 0;
+                  resolve(res);
+                })
+                .catch((err) => {
+                  reject(err);
+                });
+            });
+          })
+          .catch(() => {});
+      }
+    },
+    isCollection() {
+      return new Promise((resolve, reject) => {
+        request({
+          url: `/collection/ifCollection?bookId=${this.bookId}&username=${this.username}`,
+        })
+          .then((res) => {
+            console.log(res);
+            this.flag = res.data.isCollected;
+            resolve(res);
+          })
+          .catch((err) => {
+            console.error(err);
+            reject(err);
+          });
+      });
+    },
   },
 };
 </script>
@@ -292,7 +396,7 @@ h2 {
   margin-top: 5px;
   color: #3c8fff;
 }
-.timePicker{
-    margin-left: 20px;
+.timePicker {
+  margin-left: 20px;
 }
 </style>

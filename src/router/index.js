@@ -26,7 +26,7 @@ export const constantRoutes = [
     component:()=>import('@/views/category/index')
   },
   {
-    path:'/detail',
+    path:'/detail/:id',
     component:()=>import('@/views/detail/index')
   },
 
