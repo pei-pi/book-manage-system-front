@@ -36,7 +36,10 @@
             </div>
           </button>
           <div style="display: inline-block">
-            <button class="borrow">借阅</button>
+              <button class="borrowing" v-if="borrowState === 1">待审核</button>
+              <button class="borrow" v-else-if="borrowState === 2" @click="back()">归还</button>
+              <button class="borrowing" v-else-if="borrowState === 3">归还中</button>
+              <button class="borrow" v-else @click="visible = !visible">借阅</button>
             <el-date-picker
               class="timePicker"
               v-model="value1"
@@ -46,6 +49,7 @@
               end-placeholder="结束日期"
               value-format="yyyy-MM-dd HH:mm:ss"
               format="yyyy-MM-dd hh:mm:ss"
+              v-show="visible"
             >
             </el-date-picker>
             <el-button
@@ -54,6 +58,7 @@
               icon="el-icon-check"
               circle
               @click="borrow"
+              v-show="visible"
             ></el-button>
           </div>
         </div>
@@ -100,6 +105,7 @@ export default {
   },
   mounted() {
     this.isCollection();
+    this.isBorrow();
   },
   data() {
     return {
@@ -159,6 +165,8 @@ export default {
       username: "",
       baseURL: process.env.VUE_APP_BASE_API,
       flag: 0,
+      visible: false,
+      borrowState: 0,
     };
   },
   methods: {
@@ -187,8 +195,19 @@ export default {
       });
     },
     borrow() {
-      console.log(this.value1);
-      console.log(new Date(this.value1[0]));
+      return new Promise((resolve,reject) => {
+        request({
+          url:`/borrow/insertBorrow?bookId=${this.bookId}&username=${this.username}&borrowTime=${this.value1[0]}&endTime=${this.value1[1]}`,
+          methods:"get"
+        }).then(res=>{
+          Message.success("借阅信息已登记，等待管理员审核");
+          this.borrowState = 1
+          this.value1="";
+          resolve(res)
+        }).catch(err=>{
+          reject(err)
+        })
+      })
     },
     collect() {
       if (this.flag === 0) {
@@ -246,6 +265,48 @@ export default {
             reject(err);
           });
       });
+    },
+    // 查询借阅状态
+    isBorrow() {
+      return new Promise((resolve, reject) => {
+        request({
+          url: `/borrow/isBorrow?bookId=${this.bookId}&username=${this.username}`,
+        })
+          .then((res) => {
+            console.log(res);
+            this.borrowState = res.data.isBorrow;
+            resolve(res);
+          })
+          .catch((err) => {
+            console.error(err);
+            reject(err);
+          });
+      });
+    },
+    back() {
+      this.$confirm("确认归还此书籍?", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning",
+      })
+        .then(() => {
+          return new Promise((resolve, reject) => {
+            request({
+              url: `/borrow/back?bookId=${this.bookId}&username=${this.username}`,
+            })
+              .then((res) => {
+                console.log(res);
+                Message.success("归还中，等待管理员审核");
+                this.borrowState = 3;
+                resolve(res);
+              })
+              .catch((err) => {
+                console.error(err);
+                reject(err);
+              });
+          });
+        })
+        .catch(() => {});
     },
   },
 };
@@ -342,7 +403,16 @@ h2 {
   border: none;
   border-radius: 4px;
 }
-
+.borrowing{
+  width: 150px;
+  height: 42px;
+  background: linear-gradient(270deg, #ff6200, #fe0000);
+  opacity: 0.3;
+  color: #fff;
+  font-size: 16px;
+  border: none;
+  border-radius: 4px;
+}
 .recommend {
   margin: 0 auto;
   width: 95%;

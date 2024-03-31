@@ -26,7 +26,7 @@ router.beforeEach(async (to, from, next) => {
       }
     }
   } else {
-    if (whiteList.indexOf(to.path) !== -1) {
+    if (whiteList.indexOf(to.path) !== -1 || to.path.startsWith('/detail')) {
       next();
     } else {
       next(`/login?redirect=${to.path}`);
