@@ -69,6 +69,7 @@ export default {
     padding-left: 10px;
     padding-right: 10px;
     color: gray;
+    text-decoration: none;
 }
 #home .person{
     text-decoration: none;
