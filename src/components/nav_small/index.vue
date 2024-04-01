@@ -7,7 +7,7 @@
                 <p>|</p>
                 <router-link id="home" to="/home">首页</router-link>
                 <p>|</p>
-                <p>个人中心</p>
+                <router-link to="/person" class="person">个人中心</router-link>
                 <p>|</p>
                 <p class="logout" @click="logout">退出登录</p>
             </div>
@@ -63,14 +63,14 @@ export default {
     flex-direction: row;
 }
 
-.nav_right p ,#home{
+.nav_right p ,#home,.person{
     font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
     font-size: 14px;
     padding-left: 10px;
     padding-right: 10px;
     color: gray;
 }
-#home{
+#home .person{
     text-decoration: none;
 }
 #home:hover{

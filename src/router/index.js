@@ -30,6 +30,10 @@ export const constantRoutes = [
     path:'/detail/:id',
     component:()=>import('@/views/detail/index')
   },
+  {
+    path:'/person',
+    component:()=>import('@/views/person/index')
+  },
 
 ]
 const createRouter = () => new Router({
