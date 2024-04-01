@@ -203,6 +203,7 @@ export default {
           Message.success("借阅信息已登记，等待管理员审核");
           this.borrowState = 1
           this.value1="";
+          this.visible = false;
           resolve(res)
         }).catch(err=>{
           reject(err)
