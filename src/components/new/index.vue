@@ -25,7 +25,6 @@
                         <p class="author">{{ book.author }}</p>
                     </div>
                 </div>
-
             </div>
         </div>
         <div style="width:90%; height:0; border-bottom: 2px solid rgb(75, 150, 166); margin: 40px auto; margin-top: 60px;"></div>
