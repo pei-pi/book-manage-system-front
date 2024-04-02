@@ -59,9 +59,10 @@
             <button class="borrowing" v-else-if="borrowState === 3">
               归还中
             </button>
-            <button class="borrow" v-else @click="visible = !visible">
-              借阅
-            </button>
+            <template v-else>
+              <button class="borrow" @click="visible = !visible">借阅</button>
+            </template>
+
             <!-- 续借时间框 -->
             <el-date-picker
               v-model="value2"
@@ -151,7 +152,7 @@ export default {
   data() {
     return {
       value1: "",
-      value2:"",
+      value2: "",
       book: {},
       recommendbooks: [
         {
@@ -208,7 +209,7 @@ export default {
       baseURL: process.env.VUE_APP_BASE_API,
       flag: 0,
       visible: false,
-      keepvisible:false,
+      keepvisible: false,
       borrowState: 0,
       endTime: "",
     };
@@ -222,6 +223,7 @@ export default {
           method: "get",
         })
           .then((res) => {
+            console.log(res);
             const resBook = res.data.book;
             this.book = {
               bookId: resBook.id,
@@ -244,13 +246,15 @@ export default {
           methods: "get",
         })
           .then((res) => {
-            Message.success("借阅信息已登记，等待管理员审核");
-            this.borrowState = 1;
-            this.value1 = "";
-            this.visible = false;
-            resolve(res);
+            if (res.code === 20000) {
+              Message.success("借阅信息已登记，等待管理员审核");
+              this.borrowState = 1;
+              this.value1 = "";
+              this.visible = false;
+            }
           })
           .catch((err) => {
+            console.log(err);
             reject(err);
           });
       });
@@ -353,22 +357,24 @@ export default {
         .catch(() => {});
     },
     keepBorrow() {
-      if(new Date(this.value2)>new Date(this.endTime)){
-        console.log(this.value2)
-        return new Promise((resolve,reject)=>{
+      if (new Date(this.value2) > new Date(this.endTime)) {
+        console.log(this.value2);
+        return new Promise((resolve, reject) => {
           request({
-            url:`/borrow/changeEndTime?endTime=${this.value2}&bookId=${this.book.bookId}&username=${this.username}`,
-            method:"get"
-          }).then(()=>{
-            Message.success("续借成功！");
-            this.isBorrow();
-            this.keepvisible=false;
-          }).catch(err=>{
-            console.error(err);
-            reject(err);
+            url: `/borrow/changeEndTime?endTime=${this.value2}&bookId=${this.book.bookId}&username=${this.username}`,
+            method: "get",
           })
-        })
-      }else{
+            .then(() => {
+              Message.success("续借成功！");
+              this.isBorrow();
+              this.keepvisible = false;
+            })
+            .catch((err) => {
+              console.error(err);
+              reject(err);
+            });
+        });
+      } else {
         Message.error("续借日期不能比归还日期小！");
       }
     },
