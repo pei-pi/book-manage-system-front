@@ -90,7 +90,7 @@ export default {
   },
   data() {
     return {
-      activeName: "first",
+      activeName: sessionStorage.getItem('tab')||"first",
       books: [],
       baseURL: process.env.VUE_APP_BASE_API,
       username: "",
@@ -99,9 +99,12 @@ export default {
   },
   methods: {
     handleClick(tab) {
-      if (tab.index === 0) {
+      console.log(tab)
+      if (tab.index == 0) {
+        sessionStorage.setItem('tab', "first");
         this.loadUserCollection();
       } else {
+        sessionStorage.setItem('tab', "second");
         this.loadUserBorrow();
       }
     },
@@ -129,7 +132,6 @@ export default {
       });
     },
     cancelCollection(book) {
-      console.log(this.username);
       this.$confirm("确认取消收藏此书籍?", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
@@ -159,7 +161,6 @@ export default {
           method: "get",
         })
           .then((res) => {
-            console.log(res.data)
             this.borrowBooks = res.data.borrowBooksList.map((item) => {
               return {
                 bookId: item.bookId,
@@ -170,7 +171,6 @@ export default {
               };
             });
             this.borrowBooks.sort((a, b) => a.borrowState - b.borrowState);
-            console.log(this.borrowBooks)
           })
           .catch((err) => {
             console.error(err);
