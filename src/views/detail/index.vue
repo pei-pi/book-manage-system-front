@@ -36,10 +36,51 @@
             </div>
           </button>
           <div style="display: inline-block">
-              <button class="borrowing" v-if="borrowState === 1">待审核</button>
-              <button class="borrow" v-else-if="borrowState === 2" @click="back()">归还</button>
-              <button class="borrowing" v-else-if="borrowState === 3">归还中</button>
-              <button class="borrow" v-else @click="visible = !visible">借阅</button>
+            <button class="borrowing" v-if="borrowState === 1">待审核</button>
+            <template v-else-if="borrowState === 2">
+              <button
+                style="margin-right: 10px"
+                class="borrow"
+                @click="keepvisible = !keepvisible"
+              >
+                续借
+              </button>
+              <button class="borrow" @click="back()">归还</button>
+              <span
+                style="
+                  font-size: 12px;
+                  color: gray;
+                  padding-top: 27px;
+                  position: absolute;
+                "
+                >到期日期：{{ endTime }}</span
+              >
+            </template>
+            <button class="borrowing" v-else-if="borrowState === 3">
+              归还中
+            </button>
+            <button class="borrow" v-else @click="visible = !visible">
+              借阅
+            </button>
+            <!-- 续借时间框 -->
+            <el-date-picker
+              v-model="value2"
+              type="datetime"
+              placeholder="选择续借时间"
+              v-show="keepvisible"
+              value-format="yyyy-MM-dd HH:mm:ss"
+              format="yyyy-MM-dd hh:mm:ss"
+            >
+            </el-date-picker>
+            <el-button
+              type="primary"
+              style="margin-left: 10px"
+              icon="el-icon-check"
+              circle
+              @click="keepBorrow"
+              v-show="keepvisible"
+            ></el-button>
+            <!-- 借阅时间框 -->
             <el-date-picker
               class="timePicker"
               v-model="value1"
@@ -110,6 +151,7 @@ export default {
   data() {
     return {
       value1: "",
+      value2:"",
       book: {},
       recommendbooks: [
         {
@@ -166,7 +208,9 @@ export default {
       baseURL: process.env.VUE_APP_BASE_API,
       flag: 0,
       visible: false,
+      keepvisible:false,
       borrowState: 0,
+      endTime: "",
     };
   },
   methods: {
@@ -178,7 +222,6 @@ export default {
           method: "get",
         })
           .then((res) => {
-            console.log(res);
             const resBook = res.data.book;
             this.book = {
               bookId: resBook.id,
@@ -195,20 +238,22 @@ export default {
       });
     },
     borrow() {
-      return new Promise((resolve,reject) => {
+      return new Promise((resolve, reject) => {
         request({
-          url:`/borrow/insertBorrow?bookId=${this.bookId}&username=${this.username}&borrowTime=${this.value1[0]}&endTime=${this.value1[1]}`,
-          methods:"get"
-        }).then(res=>{
-          Message.success("借阅信息已登记，等待管理员审核");
-          this.borrowState = 1
-          this.value1="";
-          this.visible = false;
-          resolve(res)
-        }).catch(err=>{
-          reject(err)
+          url: `/borrow/insertBorrow?bookId=${this.bookId}&username=${this.username}&borrowTime=${this.value1[0]}&endTime=${this.value1[1]}`,
+          methods: "get",
         })
-      })
+          .then((res) => {
+            Message.success("借阅信息已登记，等待管理员审核");
+            this.borrowState = 1;
+            this.value1 = "";
+            this.visible = false;
+            resolve(res);
+          })
+          .catch((err) => {
+            reject(err);
+          });
+      });
     },
     collect() {
       if (this.flag === 0) {
@@ -218,7 +263,6 @@ export default {
             method: "get",
           })
             .then((res) => {
-              console.log(res);
               Message.success("收藏成功");
               this.flag = 1;
               resolve(res);
@@ -257,7 +301,6 @@ export default {
           url: `/collection/ifCollection?bookId=${this.bookId}&username=${this.username}`,
         })
           .then((res) => {
-            console.log(res);
             this.flag = res.data.isCollected;
             resolve(res);
           })
@@ -274,8 +317,8 @@ export default {
           url: `/borrow/isBorrow?bookId=${this.bookId}&username=${this.username}`,
         })
           .then((res) => {
-            console.log(res);
             this.borrowState = res.data.isBorrow;
+            this.endTime = res.data.endTime;
             resolve(res);
           })
           .catch((err) => {
@@ -308,6 +351,26 @@ export default {
           });
         })
         .catch(() => {});
+    },
+    keepBorrow() {
+      if(new Date(this.value2)>new Date(this.endTime)){
+        console.log(this.value2)
+        return new Promise((resolve,reject)=>{
+          request({
+            url:`/borrow/changeEndTime?endTime=${this.value2}&bookId=${this.book.bookId}&username=${this.username}`,
+            method:"get"
+          }).then(()=>{
+            Message.success("续借成功！");
+            this.isBorrow();
+            this.keepvisible=false;
+          }).catch(err=>{
+            console.error(err);
+            reject(err);
+          })
+        })
+      }else{
+        Message.error("续借日期不能比归还日期小！");
+      }
     },
   },
 };
@@ -404,7 +467,7 @@ h2 {
   border: none;
   border-radius: 4px;
 }
-.borrowing{
+.borrowing {
   width: 150px;
   height: 42px;
   background: linear-gradient(270deg, #ff6200, #fe0000);

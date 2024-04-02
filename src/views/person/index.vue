@@ -3,7 +3,7 @@
     <Nav class="nav"></Nav>
     <div style="height: 120px; width: 100%"></div>
     <div class="below">
-      <el-tabs v-model="activeName">
+      <el-tabs v-model="activeName" @tab-click="handleClick">
         <el-tab-pane label="收藏图书" class="else" name="first">
           <div v-for="(book, index) in books" :key="index" class="otherBook">
             <div class="imgBox">
@@ -17,13 +17,56 @@
             <el-button
               type="warning"
               class="collection_btn"
+              style="margin-left: 30px;"
               icon="el-icon-star-off"
               circle
               @click="cancelCollection(book)"
             ></el-button>
           </div>
         </el-tab-pane>
-        <el-tab-pane label="借阅图书" name="second">借阅图书</el-tab-pane>
+        <el-tab-pane label="借阅图书" class="else" name="second">
+          <div
+            v-for="(book, index) in borrowBooks"
+            :key="index"
+            class="otherBook"
+          >
+            <div class="imgBox">
+              <img :src="book.imgUrl" class="bookImg" />
+            </div>
+            <div class="book_intro">
+              <h4>{{ book.bookName }}</h4>
+              <p class="author">{{ book.author }}</p>
+            </div>
+            <template v-if="book.borrowState === 1">
+              <el-button type="primary" size="small" class="borrowBtn" disabled
+                >待审核</el-button
+              >
+            
+            </template>
+            <template v-if="book.borrowState === 2">
+              <el-button type="primary" size="small" class="borrowBtn" @click="borrow(book)"
+                >续借</el-button
+              >
+              <el-button
+                type="warning"
+                size="small"
+                style="margin-right: 10px"
+                class="borrowBtn"
+                @click="back(book)"
+                >归还</el-button
+              >
+            </template>
+            <template v-if="book.borrowState === 3">
+              <el-button type="warning" size="small" class="borrowBtn" disabled
+                >归还中</el-button>
+            </template>
+            <template v-if="book.borrowState === 4">
+              <el-button type="primary" size="small" class="borrowBtn" @click="borrow(book)"
+                >借阅</el-button>
+
+            </template>
+          </div>
+        </el-tab-pane>
       </el-tabs>
     </div>
     <Footer style="margin-top: 60px"></Footer>
@@ -32,6 +75,7 @@
 
 <script>
 import Nav from "@/components/nav_small";
+import { Message } from "element-ui";
 import Footer from "@/components/footer";
 import request from "@/assets/utils/request";
 export default {
@@ -42,16 +86,25 @@ export default {
   },
   mounted() {
     this.loadUserCollection();
+    this.loadUserBorrow();
   },
   data() {
     return {
       activeName: "first",
       books: [],
       baseURL: process.env.VUE_APP_BASE_API,
-      username:"",
+      username: "",
+      borrowBooks: [],
     };
   },
   methods: {
+    handleClick(tab) {
+      if (tab.index === 0) {
+        this.loadUserCollection();
+      } else {
+        this.loadUserBorrow();
+      }
+    },
     loadUserCollection() {
       this.username = this.$store.getters.name;
       return new Promise((resolve, reject) => {
@@ -66,10 +119,9 @@ export default {
                 imgUrl: this.baseURL + "/" + item.bookSrc,
                 bookName: item.bookTitle,
                 author: item.bookAuthor,
+                
               };
             });
-
-            console.log(this.books);
           })
           .catch((err) => {
             console.error(err);
@@ -77,7 +129,7 @@ export default {
       });
     },
     cancelCollection(book) {
-      console.log(this.username)
+      console.log(this.username);
       this.$confirm("确认取消收藏此书籍?", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
@@ -100,6 +152,58 @@ export default {
         })
         .catch(() => {});
     },
+    loadUserBorrow() {
+      return new Promise((resolve, reject) => {
+        request({
+          url: `/borrow/userBorrowbooks?username=${this.username}`,
+          method: "get",
+        })
+          .then((res) => {
+            console.log(res.data)
+            this.borrowBooks = res.data.borrowBooksList.map((item) => {
+              return {
+                bookId: item.bookId,
+                imgUrl: this.baseURL + "/" + item.bookSrc,
+                bookName: item.bookTitle,
+                author: item.bookAuthor,
+                borrowState:item.borrowState
+              };
+            });
+            this.borrowBooks.sort((a, b) => a.borrowState - b.borrowState);
+            console.log(this.borrowBooks)
+          })
+          .catch((err) => {
+            console.error(err);
+          });
+      });
+    },
+    back(book){
+      this.$confirm("确认归还此书籍?", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning",
+      })
+        .then(() => {
+          return new Promise((resolve, reject) => {
+            request({
+              url: `/borrow/back?bookId=${book.bookId}&username=${this.username}`,
+            })
+              .then((res) => {
+                Message.success("归还中，等待管理员审核");
+                this.loadUserBorrow();
+                resolve(res);
+              })
+              .catch((err) => {
+                console.error(err);
+                reject(err);
+              });
+          });
+        })
+        .catch(() => {});
+    },
+    borrow(book){
+      this.$router.push(`/detail/${book.bookId}`)
+    }
   },
 };
 </script>
@@ -176,5 +280,12 @@ export default {
   position: relative;
   top: 50%;
   transform: translate(-50%, -50%);
+}
+.borrowBtn {
+  height: 40px;
+  margin-top: 40px;
+}
+.borrowBtn:nth-child(2) {
+  padding-right: 120px;
 }
 </style>
