@@ -34,7 +34,6 @@ export const constantRoutes = [
     path:'/person',
     component:()=>import('@/views/person/index')
   },
-
 ]
 const createRouter = () => new Router({
   // mode: 'history', // require service support

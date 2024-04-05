@@ -2,14 +2,13 @@
 <template>
     <div> 
         <h2>新书速递</h2>
-        <div class="more">更多</div>
         <h5>探索精彩故事的最新篇章</h5>
         <div class="sub">
-            <div v-for="(book, index) in  firstSix" :key="index" class="firstSixBook">
-                <div class="imgBox"><img :src="require(`@/assets/images/${book.imgUrl}`)" class="bookImg" /></div>
+            <div v-for="(book, index) in  firstSix" :key="index" class="firstSixBook" @click="redirectToDetail(book.bookId)">
+                <div class="imgBox"><img :src="book.imgUrl" class="bookImg" /></div>
                 <div class="info">
                     <div class="book_intro">
-                        <h4>{{ book.bookName }}</h4>
+                        <h4 style="width: ">{{ book.bookName }}</h4>
                         <p class="author">{{ book.author }}</p>
                     </div>
                 </div>
@@ -17,8 +16,8 @@
             </div>
         </div>
         <div class="else">
-            <div v-for="(book, index) in  otherData" :key="index" class="otherBook">
-                <div class="imgBox"><img :src="require(`@/assets/images/${book.imgUrl}`)" class="bookImg" /></div>
+            <div v-for="(book, index) in  otherData" :key="index" class="otherBook" @click="redirectToDetail(book.bookId)">
+                <div class="imgBox"><img :src="book.imgUrl" class="bookImg" /></div>
                 <div class="info">
                     <div class="book_intro">
                         <h4>{{ book.bookName }}</h4>
@@ -32,85 +31,17 @@
 </template>
 
 <script>
+import request from "@/assets/utils/request";
 export default{
     name:'New',
     data() {
         return {
-            books: [
-                {
-                    bookId: 1,
-                    imgUrl: "8796093023840933102.jpg",
-                    bookName: "孤独是一座岛",
-                    author: "安逸",
-                },
-                {
-                    bookId: 2,
-                    imgUrl: "8796093023840933102.jpg",
-                    bookName: "孤独是一座岛",
-                    author: "安逸",
-                },
-                {
-                    bookId: 3,
-                    imgUrl: "8796093023840933102.jpg",
-                    bookName: "孤独是一座岛",
-                    author: "安逸",
-                },
-                {
-                    bookId: 4,
-                    imgUrl: "8796093023840933102.jpg",
-                    bookName: "孤独是一座岛",
-                    author: "安逸",
-                },
-                {
-                    bookId: 5,
-                    imgUrl: "8796093023840933102.jpg",
-                    bookName: "孤独是一座岛",
-                    author: "安逸",
-                },
-                {
-                    bookId: 6,
-                    imgUrl: "8796093023840933102.jpg",
-                    bookName: "孤独是一座岛",
-                    author: "安逸",
-                },
-                {
-                    bookId: 7,
-                    imgUrl: "8796093023840933102.jpg",
-                    bookName: "孤独是一座岛",
-                    author: "安逸",
-                },
-                {
-                    bookId: 8,
-                    imgUrl: "8796093023840933102.jpg",
-                    bookName: "孤独是一座岛",
-                    author: "安逸",
-                },
-                {
-                    bookId: 9,
-                    imgUrl: "8796093023840933102.jpg",
-                    bookName: "孤独是一座岛",
-                    author: "安逸",
-                },
-                {
-                    bookId: 10,
-                    imgUrl: "8796093023840933102.jpg",
-                    bookName: "孤独是一座岛",
-                    author: "安逸",
-                },
-                {
-                    bookId: 11,
-                    imgUrl: "8796093023840933102.jpg",
-                    bookName: "孤独是一座岛",
-                    author: "安逸",
-                },
-                {
-                    bookId: 12,
-                    imgUrl: "8796093023840933102.jpg",
-                    bookName: "孤独是一座岛",
-                    author: "安逸",
-                },
-            ]
+            books: [],
+            baseURL: process.env.VUE_APP_BASE_API,
         }
+    },
+    mounted(){
+        this.getNewBook(0,14);
     },
     computed:{
         firstSix(){
@@ -119,6 +50,32 @@ export default{
         otherData() {
             return this.books.slice(6);
         }
+    },
+    methods:{
+        getNewBook(begin,num){
+            return new Promise((resolve,reject)=>{
+                request({
+                    url:`/book/getNewBook?begin=${begin}&num=${num}`,
+                    method:"get"
+                }).then(res=>{
+                    console.log(res)
+                    this.books=res.data.books.map(item=>{
+                        return{
+                            bookId:item.id,
+                            imgUrl: this.baseURL+"/"+item.bookSrc,
+                            bookName: item.bookTitle,
+                            author: item.bookAuthor,
+                        }
+                    })
+                    console.log(this.books)
+                }).catch(err=>{
+                    console.log(err)
+                })
+            })
+        },
+        redirectToDetail(bookId){
+            this.$router.push(`/detail/${bookId}`)
+        },
     }
 }
 </script>
@@ -138,25 +95,7 @@ h5{
     text-align: center;
     margin-bottom: 50px;
 }
-.more{
-    width: 58px;
-    height: 32px;
-    border: 1px solid rgb(105, 105, 105);
-    border-radius: 4px;
-    font-size: 14px;
-    color: rgb(99, 99, 99);
-    text-align: center;
-    line-height: 32px;
-    position: absolute;
-    right: 0;
-    margin-right: 50px;
-    box-shadow: 2px 2px 2px #888888;
-}
-.more:hover{
-    cursor: pointer;
-    background-color: rgb(224, 224, 224);
-    box-shadow: none;
-}
+
 .sub{
     margin-left: 50px;
     display: flex;

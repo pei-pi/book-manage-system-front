@@ -2,7 +2,7 @@
 <template>
     <div>
         <h2>猜你喜欢</h2>
-        <div class="more">更多</div>
+        <!-- <div class="more">更多</div> -->
         <h5>个性推荐，满足您独特阅读品味</h5>
         <div class="sub">
             <div v-for="book in books" :key="book.bookId" class="book">

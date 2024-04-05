@@ -2,10 +2,10 @@
 <template>
     <div>
         <h2>热门图书</h2>
-        <div class="more">更多</div>
+        <!-- <div class="more">更多</div> -->
         <h5>尽览热门图书：开启您的阅读之旅</h5>
         <div class="sub">
-            <div v-for="(book, index) in  firstThree" :key="index" class="firstThreeBook">
+            <div v-for="(book, index) in  firstThree" :key="index" class="firstThreeBook" @click="toDetail(book)">
                 <div class="imgBox"><img :src="require(`@/assets/images/${book.imgUrl}`)" class="bookImg" /></div>
                 <div class="info">
                     <div class="tixing"></div>
@@ -26,7 +26,7 @@
             </div>
         </div>
         <div class="else">
-            <div v-for="(book, index) in  otherData" :key="index" class="otherBook">
+            <div v-for="(book, index) in  otherData" :key="index" class="otherBook" @click="toDetail(book)">
                 <div class="imgBox"><img :src="require(`@/assets/images/${book.imgUrl}`)" class="bookImg" /></div>
                 <div class="imgBackground"></div>
                 <div class="info">
@@ -169,6 +169,12 @@ export default {
         },
         otherData() {
             return this.books.slice(3);
+        }
+    },
+    methods:{
+        toDetail(book){
+            console.log(book.bookId)
+            this.$router.push(`/detail/${book.bookId}`)
         }
     }
 }
