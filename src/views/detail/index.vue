@@ -114,9 +114,10 @@
             v-for="book in recommendbooks"
             :key="book.bookId"
             class="book_detail"
+            @click="todetail(book.bookId)"
           >
             <img
-              :src="require(`@/assets/images/${book.imgUrl}`)"
+              :src="book.imgUrl"
               class="rec_book_img"
             />
             <h4 class="rec_bookname">{{ book.bookName }}</h4>
@@ -140,10 +141,18 @@ export default {
     Nav,
     Footer,
   },
+  watch: {
+  $route(to, from) {
+    if (to.path !== from.path) {
+      window.location.reload();
+    }
+  }
+},
   created() {
     this.bookId = this.$route.params.id;
     this.username = this.$store.getters.name;
     this.loadBook();
+    this.getSimilarBook();
   },
   mounted() {
     this.isCollection();
@@ -154,56 +163,7 @@ export default {
       value1: "",
       value2: "",
       book: {},
-      recommendbooks: [
-        {
-          bookId: 1,
-          imgUrl: "8796093023840933102.jpg",
-          bookName: "孤独是一座岛",
-          author: "安逸",
-        },
-        {
-          bookId: 2,
-          imgUrl: "8796093023840933102.jpg",
-          bookName: "孤独是一座岛",
-          author: "安逸",
-        },
-        {
-          bookId: 3,
-          imgUrl: "8796093023840933102.jpg",
-          bookName: "孤独是一座岛",
-          author: "安逸",
-        },
-        {
-          bookId: 4,
-          imgUrl: "8796093023840933102.jpg",
-          bookName: "孤独是一座岛",
-          author: "安逸",
-        },
-        {
-          bookId: 5,
-          imgUrl: "8796093023840933102.jpg",
-          bookName: "孤独是一座岛",
-          author: "安逸",
-        },
-        {
-          bookId: 6,
-          imgUrl: "8796093023840933102.jpg",
-          bookName: "孤独是一座岛",
-          author: "安逸",
-        },
-        {
-          bookId: 7,
-          imgUrl: "8796093023840933102.jpg",
-          bookName: "孤独是一座岛",
-          author: "安逸",
-        },
-        {
-          bookId: 8,
-          imgUrl: "8796093023840933102.jpg",
-          bookName: "孤独是一座岛",
-          author: "安逸",
-        },
-      ],
+      recommendbooks: [ ],
       bookId: 1,
       username: "",
       baseURL: process.env.VUE_APP_BASE_API,
@@ -378,6 +338,45 @@ export default {
         Message.error("续借日期不能比归还日期小！");
       }
     },
+    getSimilarBook() {
+      // 构建包含书籍ID的JSON对象
+      var requestData = {
+        book_id: this.bookId,
+      };
+
+      // 使用fetch API发送POST请求
+      fetch("http://127.0.0.1:5000/calculate-similarity", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(requestData),
+      })
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error("网络错误");
+          }
+          return response.json();
+        })
+        .then((data) => {
+          console.log(data);
+          this.recommendbooks = data.map((item) => {
+            return {
+              bookId: item.id,
+              imgUrl: this.baseURL + "/" + item.bookSrc,
+              bookName: item.title,
+              author: item.author,
+            };
+          });
+          console.log(data);
+        })
+        .catch((error) => {
+          console.error("发生错误:", error);
+        });
+    },
+    todetail(id){
+      this.$router.push(`/detail/${id}`);
+    }
   },
 };
 </script>
