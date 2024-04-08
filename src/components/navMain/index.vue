@@ -20,29 +20,33 @@
             type="text"
             name="searchInput"
             class="searchInput"
-            :value=searchValue
+            v-model="searchValue"
             placeholder="请输入书名/作者"
           />
           <button class="searchBtn">
             <i class="el-icon-search"></i>
           </button>
         </div>
-        <p class="tips">三国演义 傲慢与偏见 马克·吐温</p>
       </div>
     </div>
   </div>
 </template>
 
 <script>
-import { logout } from "@/api/user";
 import store from "@/store";
 export default {
   name: "myNav",
   data() {
     return {
       user: store.getters.name,
+      searchValue:"",
     };
   },
+  watch: {
+    searchValue(newText, oldText) {
+    console.log(newText)
+  }
+},
   methods: {
     logout() {
       this.$store.dispatch("user/logout").then(() => {
