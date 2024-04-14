@@ -147,8 +147,11 @@ ul li {
 .menu {
   line-height: 40px;
   overflow: hidden;
-}
 
+}
+.menu:hover{
+  cursor: pointer;
+}
 .menu .submenu {
   margin-left: 20px;
   font-size: 14px;
@@ -158,6 +161,7 @@ ul li {
 
 .subtitle:hover {
   color: red;
+  cursor: pointer;
 }
 
 .opener {

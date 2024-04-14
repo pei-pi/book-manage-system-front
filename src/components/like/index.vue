@@ -1,6 +1,6 @@
 <!-- 猜你喜欢 -->
 <template>
-  <div>
+  <div :hidden="hidden">
     <h2>猜你喜欢</h2>
     <!-- <div class="more">更多</div> -->
     <h5>个性推荐，满足您独特阅读品味</h5>
@@ -35,6 +35,7 @@ export default {
       books: [],
       username: this.$store.getters.name,
       baseURL: process.env.VUE_APP_BASE_API,
+      hidden:false,
     };
   },
   mounted() {
@@ -67,6 +68,9 @@ export default {
               })
               .then((data) => {
                 console.log(data);
+                if(data == ""){
+                  this.hidden=true;
+                }
                 this.books = data.map((item) => {
                   return {
                     bookId: item.id,
@@ -80,8 +84,8 @@ export default {
             resolve(res);
           })
           .catch((err) => {
-            console.error(err);
-            reject(err);
+            console.log(err);
+            // reject(err);
           });
       });
     },

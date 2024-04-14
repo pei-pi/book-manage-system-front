@@ -343,12 +343,15 @@ h5 {
   margin-left: 20px;
 }
 .otherBook h4 {
-  font-size: 13px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 14px;
   margin-top: 8px;
 }
 .otherBook .author {
   margin-top: 6px;
-  font-size: 11px;
+  font-size: 12px;
   color: rgb(95, 95, 95);
 }
 .otherBook .tip {
@@ -357,12 +360,12 @@ h5 {
   flex-direction: row;
 }
 .otherBook .read {
-  font-size: 8px;
+  font-size: 10px;
   color: rgb(0, 157, 255);
 }
 .otherBook .borrow {
   margin-left: 5px;
-  font-size: 8px;
+  font-size: 10px;
   color: rgb(0, 157, 255);
 }
 .otherBook:hover h4 {

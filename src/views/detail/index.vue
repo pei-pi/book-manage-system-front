@@ -462,6 +462,9 @@ h2 {
   height: 42px;
   border: none;
 }
+.collect:hover{
+  cursor: pointer;
+}
 
 .borrow {
   width: 150px;
@@ -471,6 +474,9 @@ h2 {
   font-size: 16px;
   border: none;
   border-radius: 4px;
+}
+.borrow:hover{
+  cursor: pointer;
 }
 .borrowing {
   width: 150px;
