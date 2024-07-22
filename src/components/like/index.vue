@@ -5,7 +5,7 @@
     <!-- <div class="more">更多</div> -->
     <h5>个性推荐，满足您独特阅读品味</h5>
     <div class="sub">
-      <div v-for="book in books" :key="book.bookId" class="book">
+      <div v-for="book in books" :key="book.bookId" class="book" @click="toDetail(book)">
         <img :src="book.imgUrl" class="book_img" />
         <h4
           style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap"
@@ -88,6 +88,10 @@ export default {
             // reject(err);
           });
       });
+    },
+    toDetail(book) {
+      console.log(book.bookId);
+      this.$router.push(`/detail/${book.bookId}`);
     },
   },
 };
